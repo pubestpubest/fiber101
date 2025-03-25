@@ -19,10 +19,10 @@ func main() {
 	books = append(books, Book{2, "Time", "Meka"})
 
 	app.Get("/", getBooks)
+	app.Get("/:id", getBook)
+	app.Post("/", createBook)
+	app.Put("/:id", updateBook)
+	app.Delete("/:id", deleteBook)
 
 	app.Listen(":3000")
-}
-
-func getBooks(c *fiber.Ctx) error {
-	return c.JSON(books)
 }
