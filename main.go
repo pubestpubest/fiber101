@@ -1,8 +1,11 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/template/html/v2"
 )
 
 type Book struct {
@@ -14,7 +17,10 @@ type Book struct {
 var books []Book
 
 func main() {
-	app := fiber.New()
+	engine := html.New("./views", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
@@ -29,7 +35,9 @@ func main() {
 	app.Put("/:id", updateBook)
 	app.Delete("/:id", deleteBook)
 	app.Post("/upload", uploadFile)
-	app.Listen(":3000")
+	app.Get("/html", renderHtml)
+
+	log.Fatal(app.Listen(":3000"))
 }
 
 func uploadFile(c *fiber.Ctx) error {
@@ -42,4 +50,12 @@ func uploadFile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.SendString("File upload successfully: " + file.Filename)
+}
+
+func renderHtml(c *fiber.Ctx) error {
+	return c.Render("index", fiber.Map{
+		"Title":       "Go Fiber Template Example",
+		"Description": "An example template",
+		"Greeting":    "Hello, world!",
+	})
 }
