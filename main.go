@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -36,6 +37,7 @@ func main() {
 	app.Delete("/:id", deleteBook)
 	app.Post("/upload", uploadFile)
 	app.Get("/html", renderHtml)
+	app.Get("/api/config", getConfig)
 
 	log.Fatal(app.Listen(":3000"))
 }
@@ -57,5 +59,20 @@ func renderHtml(c *fiber.Ctx) error {
 		"Title":       "Go Fiber Template Example",
 		"Description": "An example template",
 		"Greeting":    "Hello, world!",
+	})
+}
+
+func getEnv(key, fallback string) string {
+	if value, exist := os.LookupEnv(key); exist {
+		return value
+	} else {
+		return fallback
+	}
+}
+
+func getConfig(c *fiber.Ctx) error {
+	secret := getEnv("SECRET", "default")
+	return c.JSON(fiber.Map{
+		"SERECT": secret,
 	})
 }
